@@ -19,7 +19,7 @@ function Login() {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.post("http://localhost:5000/login", { username, password });
+      const res = await axios.post("http://https://trackflow-production-06d2.up.railway.app/login", { username, password });
 
       if (res.data.message === "Login success") {
         localStorage.setItem("loggedIn", "true");

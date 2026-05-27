@@ -1,25 +1,29 @@
 const express = require('express')
 const mysql = require('mysql2')
 const cors = require('cors')
+require('dotenv').config()
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
-// ─── DB CONNECTION ────────────────────────────────────────────
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'praneeth',   // 🔑 change to your MySQL password
-  database: 'tracker'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
 })
 
 db.connect(err => {
-  if (err) { console.error("❌ MySQL Connection Failed:", err.message); process.exit(1); }
+  if (err) {
+    console.error("❌ MySQL Connection Failed:", err.message)
+    process.exit(1)
+  }
+
   console.log("✅ MySQL Connected")
 
-  // Auto-create tables if they don't exist
   db.query(`
     CREATE TABLE IF NOT EXISTS packages (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -29,7 +33,7 @@ db.connect(err => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
-  `, err => { if (err) console.error("Table create error:", err.message); });
+  `)
 
   db.query(`
     CREATE TABLE IF NOT EXISTS users (
@@ -39,23 +43,18 @@ db.connect(err => {
       role VARCHAR(50) DEFAULT 'admin',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-  `, err => {
-    if (err) return;
-    // Insert default admin user if not exists
-    db.query(
-      "INSERT IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
-      ["admin", "admin", "admin"],
-      () => {}
-    );
-  });
+  `)
+
+  db.query(
+    "INSERT IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
+    ["admin", "admin", "admin"]
+  )
 })
 
-// ─── HEALTH CHECK ────────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() })
 })
 
-// ─── TRACK PACKAGE ───────────────────────────────────────────
 app.get('/track/:id', (req, res) => {
   const id = req.params.id
 
@@ -70,7 +69,6 @@ app.get('/track/:id', (req, res) => {
   )
 })
 
-// ─── GET ALL PACKAGES ─────────────────────────────────────────
 app.get('/all', (req, res) => {
   db.query('SELECT * FROM packages ORDER BY id DESC', (err, result) => {
     if (err) return res.status(500).json({ error: "Server error" })
@@ -78,7 +76,6 @@ app.get('/all', (req, res) => {
   })
 })
 
-// ─── GET STATS ────────────────────────────────────────────────
 app.get('/stats', (req, res) => {
   db.query(`
     SELECT 
@@ -93,7 +90,6 @@ app.get('/stats', (req, res) => {
   })
 })
 
-// ─── ADD PACKAGE ─────────────────────────────────────────────
 app.post('/add', (req, res) => {
   const { tracking_id, status, location } = req.body
 
@@ -106,15 +102,20 @@ app.post('/add', (req, res) => {
     [tracking_id.toUpperCase(), status, location || ""],
     (err) => {
       if (err) {
-        if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: "Tracking ID already exists" })
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(409).json({ error: "Tracking ID already exists" })
+        }
         return res.status(500).json({ error: "Insert failed" })
       }
-      res.json({ message: "Package added successfully", tracking_id })
+
+      res.json({
+        message: "Package added successfully",
+        tracking_id
+      })
     }
   )
 })
 
-// ─── UPDATE STATUS ────────────────────────────────────────────
 app.post('/update', (req, res) => {
   const { tracking_id, status, location } = req.body
 
@@ -129,31 +130,37 @@ app.post('/update', (req, res) => {
     [status, locationUpdate, tracking_id],
     (err, result) => {
       if (err) return res.status(500).json({ error: "Update failed" })
-      if (result.affectedRows === 0) return res.status(404).json({ error: "Tracking ID not found" })
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Tracking ID not found" })
+      }
+
       res.json({ message: "Updated successfully" })
     }
   )
 })
 
-// ─── DELETE PACKAGE ───────────────────────────────────────────
 app.delete('/delete/:id', (req, res) => {
   db.query(
     'DELETE FROM packages WHERE id = ?',
     [req.params.id],
     (err, result) => {
       if (err) return res.status(500).json({ error: "Delete failed" })
-      if (result.affectedRows === 0) return res.status(404).json({ error: "Package not found" })
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Package not found" })
+      }
+
       res.json({ message: "Deleted successfully" })
     }
   )
 })
 
-// ─── LOGIN ────────────────────────────────────────────────────
 app.post('/login', (req, res) => {
   const { username, password } = req.body
 
   if (!username || !password) {
-    return res.status(400).json({ error: "Username and password required" })
+    return res.status(400).json({
+      error: "Username and password required"
+    })
   }
 
   db.query(
@@ -161,24 +168,33 @@ app.post('/login', (req, res) => {
     [username, password],
     (err, result) => {
       if (err) return res.status(500).json({ error: "Server error" })
-      if (result.length === 0) return res.status(401).json({ error: "Invalid credentials" })
+
+      if (result.length === 0) {
+        return res.status(401).json({ error: "Invalid credentials" })
+      }
 
       res.json({
         message: "Login success",
-        user: { id: result[0].id, username: result[0].username, role: result[0].role }
+        user: {
+          id: result[0].id,
+          username: result[0].username,
+          role: result[0].role
+        }
       })
     }
   )
 })
 
-// ─── SEARCH PACKAGES ──────────────────────────────────────────
 app.get('/search', (req, res) => {
   const { q } = req.query
+
   if (!q) return res.json([])
 
   db.query(
     `SELECT * FROM packages 
-     WHERE tracking_id LIKE ? OR status LIKE ? OR location LIKE ?
+     WHERE tracking_id LIKE ? 
+     OR status LIKE ? 
+     OR location LIKE ?
      ORDER BY id DESC`,
     [`%${q}%`, `%${q}%`, `%${q}%`],
     (err, result) => {
@@ -188,17 +204,16 @@ app.get('/search', (req, res) => {
   )
 })
 
-// ─── HELPERS ──────────────────────────────────────────────────
 function getDefaultLocation(status) {
   const map = {
     "Shipped": "Warehouse - Chennai",
     "In Transit": "Distribution Hub - Mumbai",
     "Delivered": "Delivered to Customer"
   }
+
   return map[status] || ""
 }
 
-// ─── START SERVER ─────────────────────────────────────────────
-app.listen(5000, () => {
-  console.log("🚀 Server running on http://localhost:5000")
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`🚀 Server running on port ${process.env.PORT || 5000}`)
 })

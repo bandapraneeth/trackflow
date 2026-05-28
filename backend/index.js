@@ -47,11 +47,14 @@ db.connect(err => {
     )
   `)
 
-  db.query(
-    "INSERT IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
-    ["admin", "admin", "admin"]
-  )
-})
+db.query(
+  "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+  ["admin", "admin", "admin"],
+  (err) => {
+    if (err) console.log(err)
+    else console.log("Admin user created")
+  }
+)
 
 app.get('/health', (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() })

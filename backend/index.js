@@ -28,7 +28,7 @@ db.connect(err => {
 
   db.query(`
     CREATE TABLE IF NOT EXISTS packages (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,s
       tracking_id VARCHAR(50) UNIQUE NOT NULL,
       status VARCHAR(50) DEFAULT 'Shipped',
       location VARCHAR(255),

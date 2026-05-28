@@ -59,7 +59,7 @@ db.query("SELECT 1", (err) => {
       }
     }
   );
-});
+
 
 app.get('/health', (req, res) => {
   res.json({

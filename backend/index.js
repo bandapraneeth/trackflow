@@ -18,6 +18,7 @@ const db = mysql.createPool({
     rejectUnauthorized: false
   }
 });
+
 db.query("SELECT 1", (err) => {
   if (err) {
     console.log("❌ MySQL Error:", err);
@@ -25,7 +26,6 @@ db.query("SELECT 1", (err) => {
     console.log("✅ MySQL Connected");
   }
 });
-
 
   db.query(`
     CREATE TABLE IF NOT EXISTS packages (

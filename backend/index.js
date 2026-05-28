@@ -93,18 +93,18 @@ app.get('/track/:id', (req, res) => {
 });
 
 app.get('/all', (req, res) => {
-  db.query(
-    'SELECT * FROM packages ORDER BY id DESC',
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          error: "Server error"
-        });
-      }
+  db.query('SELECT * FROM packages ORDER BY id DESC', (err, result) => {
 
-      res.json(result);
+    if (err) {
+      console.log(err);
+
+      return res.status(500).json({
+        error: err.message
+      });
     }
-  );
+
+    res.json(result);
+  });
 });
 
 app.get('/stats', (req, res) => {

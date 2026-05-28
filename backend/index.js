@@ -18,14 +18,14 @@ const db = mysql.createPool({
     rejectUnauthorized: false
   }
 });
-
-db.connect((err) => {
+db.query("SELECT 1", (err) => {
   if (err) {
-    console.error("❌ MySQL Connection Failed:", err.message);
-    return;
+    console.log("❌ MySQL Error:", err);
+  } else {
+    console.log("✅ MySQL Connected");
   }
+});
 
-  console.log("✅ MySQL Connected");
 
   db.query(`
     CREATE TABLE IF NOT EXISTS packages (

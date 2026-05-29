@@ -9,16 +9,18 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createPool({
-  host: "mysql.railway.internal",
-  user: "root",
-  password: "EXHLEYfHcRGCZLrszaWgrTVrlTFwRoQY",
-  database: "railway",
-  port: 3306,
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT
 });
-console.log("DB_HOST =", process.env.DB_HOST);
-console.log("DB_USER =", process.env.DB_USER);
-console.log("DB_NAME =", process.env.DB_NAME);
-console.log("DB_PORT =", process.env.DB_PORT);
+
+console.log("MYSQLHOST =", process.env.MYSQLHOST);
+console.log("MYSQLUSER =", process.env.MYSQLUSER);
+console.log("MYSQLDATABASE =", process.env.MYSQLDATABASE);
+console.log("MYSQLPORT =", process.env.MYSQLPORT);
+  
 
 db.query("SELECT 1", (err) => {
   if (err) {

@@ -17,7 +17,7 @@ function Home() {
     if (!id.trim()) { setError("Please enter a Tracking ID ⚠️"); return; }
     try {
       setLoading(true)
-      const res = await axios.get(`http://https://trackflow-production-06d2.up.railway.app/track/${id.toUpperCase()}`)
+      const res = await axios.get(`https://trackflow-production-06d2.up.railway.app/track/${id.toUpperCase()}`)
       setData(res.data)
       setError("")
     } catch (err) {
@@ -135,7 +135,7 @@ function StatsBar() {
   const [stats, setStats] = useState(null);
 
   useState(() => {
-    axios.get("http://https://trackflow-production-06d2.up.railway.app/all").then(res => {
+    axios.get("https://trackflow-production-06d2.up.railway.app/all").then(res => {
       const all = res.data;
       setStats({
         total: all.length,

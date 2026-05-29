@@ -31,7 +31,7 @@ CREATE DATABASE tracker;
 cd backend
 npm install
 node index.js
-# Runs on http://https://trackflow-production-06d2.up.railway.app
+# Runs on https://trackflow-production-06d2.up.railway.app
 ```
 
 ### 3. Frontend

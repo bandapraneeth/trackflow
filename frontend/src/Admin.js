@@ -30,7 +30,7 @@ function Admin() {
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const getAll = async () => {
-    const res = await fetch("http://https://trackflow-production-06d2.up.railway.app/all");
+    const res = await fetch("https://trackflow-production-06d2.up.railway.app/all");
     const result = await res.json();
     setData(result);
   };
@@ -63,7 +63,8 @@ function Admin() {
     if (!updateStatus) { showMsg("❌ Select a status", "error"); return; }
     try {
       setLoading(true);
-      await fetch("http://https://trackflow-production-06d2.up.railway.app/update", {
+      await fetch("https://trackflow-production-06d2.up.railway.app/update", {
+        
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,7 +86,7 @@ function Admin() {
     }
     try {
       setLoading(true);
-      await fetch("http://https://trackflow-production-06d2.up.railway.app/add", {
+      await fetch("https://trackflow-production-06d2.up.railway.app/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,7 +104,7 @@ function Admin() {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://https://trackflow-production-06d2.up.railway.app/delete/${id}`, { method: "DELETE" });
+      await fetch(`https://trackflow-production-06d2.up.railway.app/delete/${id}`, { method: "DELETE" });
       showMsg("🗑️ Package deleted!");
       setConfirmDelete(null);
       getAll();
